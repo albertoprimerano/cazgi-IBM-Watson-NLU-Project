@@ -23,7 +23,7 @@ function getNLUInstance(){
     return naturalLanguageUnderstanding;
 }
 
-function retrieveSentiment(textToAnalyse,res){
+function retrieveSentimentText(textToAnalyse,res){
     let naturaLanguageUnderstanding = getNLUInstance()
     const analyzeParams = {
         'features': {
@@ -32,11 +32,9 @@ function retrieveSentiment(textToAnalyse,res){
         'text': textToAnalyse
     };
   
-
     naturaLanguageUnderstanding.analyze(analyzeParams)
     .then(analyzeResults => {
             result = analyzeResults.result.sentiment.document.label.toString()
-            console.log(JSON.stringify(analyzeResults.result.sentiment.document,null,2))
             res.send(result);
         }).catch(err => {
           res.send(err.toString());
@@ -44,10 +42,63 @@ function retrieveSentiment(textToAnalyse,res){
 }
 
 
+function retrieveSentimentURL(urlToAnalyze,res){
+    let naturaLanguageUnderstanding = getNLUInstance()
+    const analyzeParams = {
+        'features': {
+                sentiment: {}
+            },
+        'url': urlToAnalyze
+    };
+  
+    naturaLanguageUnderstanding.analyze(analyzeParams)
+    .then(analyzeResults => {
+            result = analyzeResults.result.sentiment.document.label.toString()
+            res.send(result);
+        }).catch(err => {
+          res.send(err.toString());
+        });
+}
+
+function retrieveEmotionText(textToAnalyse,res){
+    let naturaLanguageUnderstanding = getNLUInstance()
+    const analyzeParams = {
+        'features': {
+                emotion: {}
+            },
+        'text': textToAnalyse
+    };
+  
+    naturaLanguageUnderstanding.analyze(analyzeParams)
+    .then(analysisResults => {
+            emotions = analysisResults.result.emotion.document.emotion
+            res.send(emotions)
+        }).catch(err => {
+          res.send(err.toString());
+        });
+}
+
+function retrieveEmotionUrl(urtlToAnalyze,res){
+    let naturaLanguageUnderstanding = getNLUInstance()
+    const analyzeParams = {
+        'features': {
+                emotion: {}
+            },
+        'url': urtlToAnalyze
+    };
+  
+    naturaLanguageUnderstanding.analyze(analyzeParams)
+    .then(analysisResults => {
+            emotions = analysisResults.result.emotion.document.emotion
+            res.send(emotions)
+        }).catch(err => {
+          res.send(err.toString());
+        });
+}
+
+
+
 app.use(express.static('client'))
-
-
-
 const cors_app = require('cors');
 app.use(cors_app());
 
@@ -56,21 +107,23 @@ app.get("/",(req,res)=>{
   });
 
 app.get("/url/emotion", (req,res) => {
-
-    return res.send({"happy":"90","sad":"10"});
+    let urtlToAnalyze = req.query.url
+    retrieveEmotionUrl(urtlToAnalyze,res)
 });
 
 app.get("/url/sentiment", (req,res) => {
-    return res.send("url sentiment for "+req.query.url);
+    let urtlToAnalyze = req.query.url
+    retrieveSentimentURL(urtlToAnalyze,res)
 });
 
 app.get("/text/emotion", (req,res) => {
-    return res.send({"happy":"10","sad":"90"});
+    let textForEmotions = req.query.text;
+    retrieveEmotionText(textForEmotions,res);
 });
 
 app.get("/text/sentiment", (req,res) => {
-    let textToTranslate = req.query.text;
-    retrieveSentiment(textToTranslate,res)
+    let textToCheck = req.query.text;
+    retrieveSentimentText(textToCheck,res);
 });
 
 let server = app.listen(8080, () => {

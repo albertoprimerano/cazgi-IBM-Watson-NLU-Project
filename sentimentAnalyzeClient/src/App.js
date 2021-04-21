@@ -8,7 +8,7 @@ class App extends React.Component {
 
   constructor(props){
       super(props);
-      document.title = "Sentiment Analyzer"
+      document.title = "Sentiment Analyzers"
   }
 
   state = {innercomp:<textarea rows="4" cols="50" id="textinput"/>,
